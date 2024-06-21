@@ -1,16 +1,44 @@
 from interfaceUsuario import Usuario
-from gerenciadorusuario import GerenciadorUsuarios
+from gerenciadorUsuario import GerenciadorUsuarios
 import os
 from cliente import Cliente
 
 class Administrador(Usuario):
     def __init__(self, gerenciador: GerenciadorUsuarios, nome: str = None, sobrenome: str = None, email: str = None, senha: str = None, cpf: str = None, nivel_acesso: str = 'admin') -> None:
+        '''
+        Inicializa um objeto Administrador.
+
+        Parâmetros
+        ----------
+        gerenciador : GerenciadorUsuarios
+            Instância do gerenciador de usuários.
+        nome : str, opcional
+            Nome do administrador.
+        sobrenome : str, opcional
+            Sobrenome do administrador.
+        email : str, opcional
+            Email do administrador.
+        senha : str, opcional
+            Senha do administrador.
+        cpf : str, opcional
+            CPF do administrador.
+        nivel_acesso : str, opcional
+            Nível de acesso do administrador (padrão é 'admin').
+        '''
         self._gerenciador = gerenciador
         super().__init__(nome, sobrenome, email, senha, cpf)
         self.nivel_acesso = nivel_acesso
         self.tipo = "admin"
     
     def to_dict(self) -> dict:
+        '''
+        Converte os dados do administrador para um dicionário.
+
+        Retorna
+        -------
+        dict
+            Dicionário contendo os dados do administrador.
+        '''
         return {
             'nome': self.get_nome(),
             'sobrenome': self.get_sobrenome(),
@@ -21,9 +49,15 @@ class Administrador(Usuario):
         }
     
     def cadastrar(self) -> None:
+        '''
+        Registra o administrador no sistema.
+        '''
         print(f"Administrador {self.get_nome()} {self.get_sobrenome()} cadastrado com email {self.get_email()} e nível de acesso {self.nivel_acesso}.")
         
     def aprovar_cartoes(self) -> None:
+        '''
+        Aprova solicitações de cartão de crédito pendentes.
+        '''
         pedidos = [cliente for cliente in self._gerenciador.usuarios if isinstance(cliente, Cliente) and cliente.status_cartao == 'pendente']
         if not pedidos:
             print("\nNão há solicitações de cartão pendentes.")
@@ -43,6 +77,9 @@ class Administrador(Usuario):
             print("Operação cancelada ou entrada inválida.")
            
     def visualizar_informacoes_cliente(self) -> None:
+        '''
+        Exibe as informações detalhadas de um cliente.
+        '''
         clientes = [cliente for cliente in self._gerenciador.usuarios if isinstance(cliente, Cliente)]
     
         if not clientes:
@@ -73,6 +110,9 @@ class Administrador(Usuario):
             print("Operação cancelada ou entrada inválida.")
             
     def encerrar_conta_cliente(self) -> None:
+        '''
+        Encerra a conta de um cliente que solicitou o encerramento.
+        '''
         solicitacoes = [cliente for cliente in self._gerenciador.usuarios if isinstance(cliente, Cliente) and cliente.solicitar_encerramento]
         
         if not solicitacoes:
@@ -101,6 +141,9 @@ class Administrador(Usuario):
             print("Operação cancelada ou entrada inválida.")
     
     def aprovar_aumento_limite(self) -> None:
+        '''
+        Aprova solicitações de aumento de limite de crédito pendentes.
+        '''
         solicitacoes = [cliente for cliente in self._gerenciador.usuarios if isinstance(cliente, Cliente) and cliente.limite_requerido > 0]
         
         if not solicitacoes:

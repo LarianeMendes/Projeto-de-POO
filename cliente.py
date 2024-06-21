@@ -5,6 +5,36 @@ import os
 
 class Cliente(Usuario):
     def __init__(self, gerenciador, nome, sobrenome, email, senha, cpf, saldo=0.0, status_cartao='nenhum', limite_cartao=0.0, divida_cartao=0.0, limite_requerido=0.0, solicitar_encerramento=False):
+        '''
+        Inicializa um objeto Cliente.
+
+        Parâmetros
+        ----------
+        gerenciador : GerenciadorUsuarios
+            Instância do gerenciador de usuários.
+        nome : str
+            Nome do cliente.
+        sobrenome : str
+            Sobrenome do cliente.
+        email : str
+            Email do cliente.
+        senha : str
+            Senha do cliente.
+        cpf : str
+            CPF do cliente.
+        saldo : float, opcional
+            Saldo inicial do cliente.
+        status_cartao : str, opcional
+            Status do cartão de crédito do cliente.
+        limite_cartao : float, opcional
+            Limite do cartão de crédito do cliente.
+        divida_cartao : float, opcional
+            Dívida atual do cartão de crédito do cliente.
+        limite_requerido : float, opcional
+            Limite de crédito requerido pelo cliente.
+        solicitar_encerramento : bool, opcional
+            Indica se o cliente solicitou o encerramento da conta.
+        '''
         super().__init__(nome, sobrenome, email, senha, cpf)
         self.__gerenciador = gerenciador
         self.__saldo = saldo
@@ -18,18 +48,53 @@ class Cliente(Usuario):
         self.investimentos = Investimentos(self)  
 
     def get_saldo(self) -> float:
-        return self.__saldo
+        '''
+        Retorna o saldo do cliente, arredondando para sempre manter a formatação monetária.
+
+        Retorna
+        -------
+        float
+            Saldo do cliente.
+        '''
+        return round(self.__saldo,2)
 
     def set_saldo(self, novo_saldo: float) -> None:
+        '''
+        Define o saldo do cliente.
+
+        Parâmetros
+        ----------
+        novo_saldo : float
+            Novo saldo do cliente.
+        '''
         self.__saldo = novo_saldo
 
     def get_gerenciador(self):
+        '''
+        Retorna o gerenciador de usuários.
+
+        Retorna
+        -------
+        GerenciadorUsuarios
+            Instância do gerenciador de usuários.
+        '''
         return self.__gerenciador
 
     def cadastrar(self) -> None:
+        '''
+        Registra o cliente no sistema.
+        '''
         print(f"Cliente {self.get_nome()} {self.get_sobrenome()} cadastrado com email {self.get_email()}.")
 
     def to_dict(self) -> dict:
+        '''
+        Converte os dados do cliente para um dicionário.
+
+        Retorna
+        -------
+        dict
+            Dicionário contendo os dados do cliente.
+        '''
         return {
             'nome': self.get_nome(),
             'sobrenome': self.get_sobrenome(),
@@ -47,9 +112,25 @@ class Cliente(Usuario):
 
 class GestaoConta:
     def __init__(self, cliente: Cliente) -> None:
+        '''
+        Inicializa um objeto GestaoConta.
+
+        Parâmetros
+        ----------
+        cliente : Cliente
+            Instância do cliente.
+        '''
         self.cliente = cliente
 
     def depositar(self, valor: float) -> None:
+        '''
+        Realiza um depósito na conta do cliente.
+
+        Parâmetros
+        ----------
+        valor : float
+            Valor a ser depositado.
+        '''
         if valor > 0:
             novo_saldo = self.cliente.get_saldo() + valor
             self.cliente.set_saldo(novo_saldo)
@@ -59,6 +140,14 @@ class GestaoConta:
             print("Valor de depósito inválido.")
 
     def sacar(self, valor: float) -> None:
+        '''
+        Realiza um saque na conta do cliente.
+
+        Parâmetros
+        ----------
+        valor : float
+            Valor a ser sacado.
+        '''
         if valor <= 0:
             print("O valor de saque não pode ser negativo ou zero.")
         elif self.cliente.get_saldo() < valor:
@@ -70,6 +159,16 @@ class GestaoConta:
             self.cliente.get_gerenciador().salvar_usuarios()
 
     def transferir(self, valor: float, email_destinatario: str) -> None:
+        '''
+        Realiza uma transferência para outro cliente.
+
+        Parâmetros
+        ----------
+        valor : float
+            Valor a ser transferido.
+        email_destinatario : str
+            Email do destinatário da transferência.
+        '''
         destinatario = next((usuario for usuario in self.cliente.get_gerenciador().usuarios if usuario.get_email() == email_destinatario), None)
         if isinstance(destinatario, Cliente) and valor > 0 and self.cliente.get_saldo() >= valor:
             novo_saldo_remetente = self.cliente.get_saldo() - valor
@@ -84,8 +183,11 @@ class GestaoConta:
             destinatario.get_gerenciador().salvar_usuarios()
         else:
             print("Destinatário não é um cliente BliBank.")
-    
+
     def solicitar_encerramento_conta(self) -> None:
+        '''
+        Solicita o encerramento da conta do cliente.
+        '''
         if self.cliente.solicitar_encerramento:
             print("Uma solicitação de encerramento de conta já foi feita anteriormente.")
             return
@@ -114,9 +216,25 @@ class GestaoConta:
 
 class CartaoCredito:
     def __init__(self, cliente: Cliente) -> None:
+        '''
+        Inicializa um objeto CartaoCredito.
+
+        Parâmetros
+        ----------
+        cliente : Cliente
+            Instância do cliente.
+        '''
         self.cliente = cliente
 
     def solicitar_cartao(self) -> bool:
+        '''
+        Solicita um cartão de crédito para o cliente.
+
+        Retorna
+        -------
+        bool
+            True se a solicitação foi enviada, False caso contrário.
+        '''
         if self.cliente.status_cartao == 'nenhum':
             self.cliente.status_cartao = 'pendente'
             print("Solicitação de cartão de crédito enviada. Aguarde aprovação.")
@@ -130,6 +248,9 @@ class CartaoCredito:
             return False
 
     def ver_detalhes_cartao(self) -> None:
+        '''
+        Exibe os detalhes do cartão de crédito do cliente.
+        '''
         if self.cliente.status_cartao == 'aprovado':
             print(f"\nLimite Total: R${self.cliente.limite_cartao:.2f}")
             saldo_disponivel = self.cliente.limite_cartao - self.cliente.divida_cartao
@@ -148,8 +269,20 @@ class CartaoCredito:
                 print("Nenhuma fatura disponível.")
         else:
             print("Você ainda não possui um cartão de crédito aprovado.")
-    
+
     def registrar_compra(self, valor: float, loja: str, descricao: str) -> None:
+        '''
+        Registra uma compra no cartão de crédito do cliente.
+
+        Parâmetros
+        ----------
+        valor : float
+            Valor da compra.
+        loja : str
+            Nome da loja onde a compra foi realizada.
+        descricao : str
+            Descrição da compra.
+        '''
         if self.cliente.status_cartao != 'aprovado':
             print("Você não possui um cartão de crédito aprovado.")
             return
@@ -179,12 +312,15 @@ class CartaoCredito:
             print(f"Erro ao registrar a compra no arquivo: {e}")
 
         self.cliente.get_gerenciador().salvar_usuarios()
-    
+
     def pagar_fatura(self) -> None:
+        '''
+        Paga a fatura do cartão de crédito do cliente.
+        '''
         if self.cliente.status_cartao != 'aprovado':
             print("Você não possui um cartão de crédito aprovado para pagar faturas.")
             return
-    
+
         pasta_faturas = "faturas"
         arquivo_fatura = os.path.join(pasta_faturas, f"fatura_{self.cliente.get_email().replace('@', '_').replace('.', '_')}.txt")
         try:
@@ -210,30 +346,61 @@ class CartaoCredito:
             self.cliente.set_saldo(novo_saldo)
             self.cliente.divida_cartao = 0.0
             self.cliente.get_gerenciador().salvar_usuarios()
-    
+
         except FileNotFoundError:
             print("Nenhuma fatura encontrada para ser paga.")
         except Exception as e:
             print(f"Erro ao pagar a fatura: {e}")
-    
+
     def solicitar_aumento_limite(self, valor: float) -> None:
+        '''
+        Solicita um aumento de limite do cartão de crédito do cliente.
+
+        Parâmetros
+        ----------
+        valor : float
+            Valor do novo limite solicitado.
+        '''
         if self.cliente.status_cartao != 'aprovado':
             print("Você não possui um cartão de crédito aprovado para solicitar um aumento de limite.")
             return
-    
+
         if valor <= self.cliente.limite_cartao:
             print(f"Solicitação de aumento recusada. O valor solicitado R${valor:.2f} deve ser maior que o limite atual de R${self.cliente.limite_cartao:.2f}.")
             return
-    
+
         self.cliente.limite_requerido = valor
         self.cliente.get_gerenciador().salvar_usuarios()
         print(f"Solicitação de aumento de limite para R${valor:.2f} enviada. Aguarde aprovação.")
 
 class Investimentos:
     def __init__(self, cliente: Cliente) -> None:
+        '''
+        Inicializa um objeto Investimentos.
+
+        Parâmetros
+        ----------
+        cliente : Cliente
+            Instância do cliente.
+        '''
         self.cliente = cliente
 
     def investir(self, valor: float, tipo_investimento: str):
+        '''
+        Realiza um investimento para o cliente.
+
+        Parâmetros
+        ----------
+        valor : float
+            Valor a ser investido.
+        tipo_investimento : str
+            Tipo de investimento a ser realizado.
+
+        Retorna
+        -------
+        tuple
+            Uma tupla contendo o percentual de rendimento, valor do rendimento e valor final do investimento.
+        '''
         rendimentos = {
             'ações': (-30, 30),
             'fiis': (-10, 10),
@@ -241,8 +408,8 @@ class Investimentos:
             'cripto': (-100, 500),
             'renda fixa': (5, 10)
         }
-        tipo_investimento = tipo_investimento.lower()  # Converte para minúsculas
-
+        tipo_investimento = tipo_investimento.lower()  
+        
         if valor > 0 and valor <= self.cliente.get_saldo():
             if tipo_investimento in rendimentos:
                 min_rend, max_rend = rendimentos[tipo_investimento]
