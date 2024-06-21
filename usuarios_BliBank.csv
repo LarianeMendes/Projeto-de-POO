@@ -1,0 +1,9 @@
+nome,sobrenome,email,senha,cpf,tipo,saldo,status_cartao,limite_cartao,divida_cartao,limite_requerido,solicitar_encerramento
+Lariane,Gonçalves,lariane@adm.com,12345678,222.222.222-22,admin,,,,,,
+Israel,Jardim,israel@gmail.com,12345678,555.555.555-55,cliente,50.00,pendente,0.00,0.00,0.00,True
+Bernardo,Gomes,bernardo@gmail.com,12345678,666.666.666-66,cliente,0.00,aprovado,1000.00,0.00,2000.00,False
+Julia,Satler,julia@gmail.com,12345678,111.111.111-11,cliente,0.00,nenhum,0.00,0.00,0.00,False
+Gabriela,Nunes,gabriela@gmail.com,12345678,111.111.111-11,admin,,,,,,
+Rita,Vasconcelos,rita@gmail.com,12345678,111.111.111-11,cliente,0.00,nenhum,0.00,0.00,0.00,False
+Berna,Euclide,berna@gmail.com,12345678,111.111.111-11,cliente,0.00,nenhum,0.00,0.00,0.00,False
+Bernardo,Euclides,bernardo@gmail.co,12345678,111.111.111-11,cliente,0.00,nenhum,0.00,0.00,0.00,False
